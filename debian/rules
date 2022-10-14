@@ -1,0 +1,15 @@
+#!/usr/bin/make -f
+
+%:
+	dh $@
+
+override_dh_auto_build:
+	# Build legacy module
+	dh_auto_build --buildsystem=nodejs
+	# Build @rollup/pluginutils
+	cd packages/pluginutils; if rollup -c; then \
+		echo "build succeeds"; \
+	else \
+		echo "build failed, trying with legacy rollup plugins"; \
+		rollup -c ../../debian/rollup-legacy.config.js; \
+	fi

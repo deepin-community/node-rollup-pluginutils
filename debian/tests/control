@@ -1,0 +1,8 @@
+Test-Command: cd packages/pluginutils && rm -f package.json && tape -J test/*.ts
+Depends: @, node-tape, acorn
+Features: test-name=upstream-test
+
+Test-Command: cd legacy && sh -ex ../debian/nodejs/legacy/test
+Depends: @, @builddeps@
+Features: test-name=legacy-test
+Restrictions: allow-stderr

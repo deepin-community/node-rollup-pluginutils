@@ -1,0 +1,15 @@
+version=4
+opts=\
+mode=git,\
+dversionmangle=auto,\
+filenamemangle=s/.*\/v?([\d\.-]+)\.tar\.gz/node-rollup-pluginutils-$1.tar.gz/ \
+ https://github.com/rollup/plugins.git refs/tags/pluginutils-v?([\d\.]+) group
+
+#https://github.com/rollup/plugins/tags .*/archive/pluginutils-v?([\d\.]+).tar.gz group
+
+opts=\
+ctype=nodejs,\
+component=legacy,\
+dversionmangle=auto,\
+filenamemangle=s/.*\/v?([\d\.-]+)\.tar\.gz/node-rollup-pluginutils-$1.tar.gz/ \
+ https://github.com/rollup/rollup-pluginutils/tags .*/archive/.*/v?([\d\.]+).tar.gz group

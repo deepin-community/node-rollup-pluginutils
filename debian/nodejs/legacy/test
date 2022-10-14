@@ -1,0 +1,1 @@
+mocha `ls test/*.ts|grep -v attachScopes|grep -v createFilter`

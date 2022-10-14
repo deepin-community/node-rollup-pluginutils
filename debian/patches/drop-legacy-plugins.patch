@@ -1,0 +1,15 @@
+
+Forwarded: not-needed
+
+--- node-rollup-pluginutils.orig/legacy/rollup.config.js
++++ node-rollup-pluginutils/legacy/rollup.config.js
+@@ -1,7 +1,7 @@
+ import pkg from './package.json';
+ import typescript from 'rollup-plugin-typescript';
+-import resolve from 'rollup-plugin-node-resolve';
+-import commonjs from 'rollup-plugin-commonjs';
++import resolve from '@rollup/plugin-node-resolve';
++import commonjs from '@rollup/plugin-commonjs';
+ 
+ export default {
+ 	input: 'src/index.ts',

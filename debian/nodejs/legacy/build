@@ -1,0 +1,2 @@
+rollup -c
+cp src/pluginutils.d.ts dist/pluginutils.d.ts

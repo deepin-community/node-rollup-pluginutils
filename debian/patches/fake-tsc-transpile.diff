@@ -1,0 +1,468 @@
+Description: fake tsc transpilation
+Author: Xavier Guimard <yadd@debian.org>
+Forwarded: not-needed
+Last-Update: 2020-03-13
+
+--- a/legacy/test/addExtension.test.ts
++++ b/legacy/test/addExtension.test.ts
+@@ -1,26 +1,27 @@
+-import { addExtension } from '..';
++const { addExtension } = require('rollup-pluginutils');
++const { expect } = require('chai');
+ 
+ describe('addExtension', function() {
+ 	it('adds .js to an ID without an extension', function() {
+-		expect(addExtension('foo')).toEqual('foo.js');
++		expect(addExtension('foo')).to.deep.equal('foo.js');
+ 	});
+ 
+ 	it('ignores file with existing extension', function() {
+-		expect(addExtension('foo.js')).toEqual('foo.js');
+-		expect(addExtension('foo.json')).toEqual('foo.json');
++		expect(addExtension('foo.js')).to.deep.equal('foo.js');
++		expect(addExtension('foo.json')).to.deep.equal('foo.json');
+ 	});
+ 
+ 	it('ignores file with trailing dot', function() {
+-		expect(addExtension('foo.')).toEqual('foo.');
++		expect(addExtension('foo.')).to.deep.equal('foo.');
+ 	});
+ 
+ 	it('ignores leading .', function() {
+-		expect(addExtension('./foo')).toEqual('./foo.js');
+-		expect(addExtension('./foo.js')).toEqual('./foo.js');
++		expect(addExtension('./foo')).to.deep.equal('./foo.js');
++		expect(addExtension('./foo.js')).to.deep.equal('./foo.js');
+ 	});
+ 
+ 	it('adds a custom extension', function() {
+-		expect(addExtension('foo', '.wut')).toEqual('foo.wut');
+-		expect(addExtension('foo.lol', '.wut')).toEqual('foo.lol');
++		expect(addExtension('foo', '.wut')).to.deep.equal('foo.wut');
++		expect(addExtension('foo.lol', '.wut')).to.deep.equal('foo.lol');
+ 	});
+ });
+--- a/legacy/test/attachScopes.test.ts
++++ b/legacy/test/attachScopes.test.ts
+@@ -1,4 +1,5 @@
+-import { attachScopes } from '..';
++const { attachScopes } = require('rollup-pluginutils');
++const { expect } = require('chai');
+ 
+ describe('attachScopes', function() {
+ 	it('attaches a scope to the top level', function() {
+@@ -32,8 +33,8 @@
+ 		};
+ 
+ 		const scope = attachScopes(ast, 'scope');
+-		expect(scope.contains('foo')).toBeTruthy();
+-		expect(scope.contains('bar')).toBeFalsy();
++		expect(scope.contains('foo')).to.be.true();
++		expect(scope.contains('bar')).to.be.false();
+ 	});
+ 
+ 	it('adds multiple declarators from a single var declaration', function() {
+@@ -80,8 +81,8 @@
+ 		};
+ 
+ 		const scope = attachScopes(ast, 'scope');
+-		expect(scope.contains('foo')).toBeTruthy();
+-		expect(scope.contains('bar')).toBeTruthy();
++		expect(scope.contains('foo')).to.be.true();
++		expect(scope.contains('bar')).to.be.true();
+ 	});
+ 
+ 	it('adds named declarators from a deconstructed declaration', function() {
+@@ -210,8 +211,8 @@
+ 		};
+ 
+ 		const scope = attachScopes(ast, 'scope');
+-		expect(scope.contains('a')).toBeTruthy();
+-		expect(scope.contains('b')).toBeTruthy();
++		expect(scope.contains('a')).to.be.true();
++		expect(scope.contains('b')).to.be.true();
+ 	});
+ 
+ 	it('adds rest elements from a deconstructed object declaration', function() {
+@@ -415,10 +416,10 @@
+ 		};
+ 
+ 		const scope = attachScopes(ast, 'scope');
+-		expect(scope.contains('x')).toBeTruthy();
+-		expect(scope.contains('y')).toBeFalsy();
+-		expect(scope.contains('z')).toBeTruthy();
+-		expect(scope.contains('rest')).toBeTruthy();
++		expect(scope.contains('x')).to.be.true();
++		expect(scope.contains('y')).to.be.false();
++		expect(scope.contains('z')).to.be.true();
++		expect(scope.contains('rest')).to.be.true();
+ 	});
+ 
+ 	it('adds nested declarators from a deconstructed declaration', function() {
+@@ -546,9 +547,9 @@
+ 		};
+ 
+ 		const scope = attachScopes(ast, 'scope');
+-		expect(scope.contains('a')).toBeFalsy();
+-		expect(scope.contains('b')).toBeFalsy();
+-		expect(scope.contains('c')).toBeTruthy();
++		expect(scope.contains('a')).to.be.false();
++		expect(scope.contains('b')).to.be.false();
++		expect(scope.contains('c')).to.be.true();
+ 	});
+ 
+ 	it('supports FunctionDeclarations without id', function() {
+@@ -584,7 +585,7 @@
+ 
+ 		expect(() => {
+ 			attachScopes(ast, 'scope');
+-		}).not.toThrow();
++		}).to.not.throw();
+ 	});
+ 
+ 	it('supports catch without a parameter', function() {
+@@ -622,6 +623,6 @@
+ 		  };
+ 		expect(() => {
+ 			attachScopes(ast, 'scope');
+-		}).not.toThrow();
++		}).to.not.throw();
+ 	});
+ });
+--- a/legacy/test/createFilter.test.ts
++++ b/legacy/test/createFilter.test.ts
+@@ -1,108 +1,109 @@
+-import * as path from 'path';
+-import { createFilter } from '..';
++const path = require('path');
++const { expect } = require('chai');
++const { createFilter } = require('rollup-pluginutils');
+ 
+ describe('createFilter', function() {
+ 	it('includes by default', function() {
+ 		const filter = createFilter();
+-		expect(filter(path.resolve('x'))).toBeTruthy();
++		expect(filter(path.resolve('x'))).to.be.true();
+ 	});
+ 
+ 	it('excludes IDs that are not included, if include.length > 0', function() {
+ 		const filter = createFilter(['y']);
+-		expect(filter(path.resolve('x'))).toBeFalsy();
+-		expect(filter(path.resolve('y'))).toBeTruthy();
++		expect(filter(path.resolve('x'))).to.be.false();
++		expect(filter(path.resolve('y'))).to.be.true();
+ 	});
+ 
+ 	it('excludes IDs explicitly', function() {
+ 		const filter = createFilter(null, ['y']);
+-		expect(filter(path.resolve('x'))).toBeTruthy();
+-		expect(filter(path.resolve('y'))).toBeFalsy();
++		expect(filter(path.resolve('x'))).to.be.true();
++		expect(filter(path.resolve('y'))).to.be.false();
+ 	});
+ 
+ 	it('handles non-array arguments', function() {
+ 		const filter = createFilter('foo/*', 'foo/baz');
+-		expect(filter(path.resolve('foo/bar'))).toBeTruthy();
+-		expect(filter(path.resolve('foo/baz'))).toBeFalsy();
++		expect(filter(path.resolve('foo/bar'))).to.be.true();
++		expect(filter(path.resolve('foo/baz'))).to.be.false();
+ 	});
+ 
+ 	it('negation patterns', function() {
+ 		const filter = createFilter(['a/!(b)/c']);
+-		expect(filter(path.resolve('a/d/c'))).toBeTruthy();
+-		expect(filter(path.resolve('a/b/c'))).toBeFalsy();
++		expect(filter(path.resolve('a/d/c'))).to.be.true();
++		expect(filter(path.resolve('a/b/c'))).to.be.false();
+ 	});
+ 
+ 	it('excludes non-string IDs', function() {
+ 		const filter = createFilter(null, null);
+-		expect(filter({})).toBeFalsy();
++		expect(filter({})).to.be.false();
+ 	});
+ 
+ 	it('excludes strings beginning with NUL', function() {
+ 		const filter = createFilter(null, null);
+-		expect(filter('\0someid')).toBeFalsy();
++		expect(filter('\0someid')).to.be.false();
+ 	});
+ 
+ 	it('includes with regexp', function() {
+ 		const filter = createFilter(['a/!(b)/c', /\.js$/]);
+-		expect(filter(path.resolve('a/d/c'))).toBeTruthy();
+-		expect(filter(path.resolve('a/b/c'))).toBeFalsy();
+-		expect(filter(path.resolve('a.js'))).toBeTruthy();
+-		expect(filter(path.resolve('a/b.js'))).toBeTruthy();
+-		expect(filter(path.resolve('a/b.jsx'))).toBeFalsy();
++		expect(filter(path.resolve('a/d/c'))).to.be.true();
++		expect(filter(path.resolve('a/b/c'))).to.be.false();
++		expect(filter(path.resolve('a.js'))).to.be.true();
++		expect(filter(path.resolve('a/b.js'))).to.be.true();
++		expect(filter(path.resolve('a/b.jsx'))).to.be.false();
+ 	});
+ 
+ 	it('excludes with regexp', function() {
+ 		const filter = createFilter(['a/!(b)/c', /\.js$/], /\.js$/);
+-		expect(filter(path.resolve('a/d/c'))).toBeTruthy();
+-		expect(filter(path.resolve('a/b/c'))).toBeFalsy();
+-		expect(filter(path.resolve('a.js'))).toBeFalsy();
+-		expect(filter(path.resolve('a/b.js'))).toBeFalsy();
+-		expect(filter(path.resolve('a/b.jsx'))).toBeFalsy();
++		expect(filter(path.resolve('a/d/c'))).to.be.true();
++		expect(filter(path.resolve('a/b/c'))).to.be.false();
++		expect(filter(path.resolve('a.js'))).to.be.false();
++		expect(filter(path.resolve('a/b.js'))).to.be.false();
++		expect(filter(path.resolve('a/b.jsx'))).to.be.false();
+ 	});
+ 
+ 	it('allows setting an absolute base dir', () => {
+ 		const baseDir = path.resolve('C');
+ 		const filter = createFilter(['y*'], ['yx'], { resolve: baseDir });
+-		expect(filter(baseDir + '/x')).toBeFalsy();
+-		expect(filter(baseDir + '/ys')).toBeTruthy();
+-		expect(filter(baseDir + '/yx')).toBeFalsy();
+-		expect(filter(path.resolve('C/d/ys'))).toBeFalsy();
+-		expect(filter(path.resolve('ys'))).toBeFalsy();
+-		expect(filter('ys')).toBeFalsy();
++		expect(filter(baseDir + '/x')).to.be.false();
++		expect(filter(baseDir + '/ys')).to.be.true();
++		expect(filter(baseDir + '/yx')).to.be.false();
++		expect(filter(path.resolve('C/d/ys'))).to.be.false();
++		expect(filter(path.resolve('ys'))).to.be.false();
++		expect(filter('ys')).to.be.false();
+ 	});
+ 
+ 	it('allows setting a relative base dir', () => {
+ 		const filter = createFilter(['y*'], ['yx'], { resolve: 'C/d' });
+-		expect(filter(path.resolve('C/d/x'))).toBeFalsy();
+-		expect(filter(path.resolve('C/d/ys'))).toBeTruthy();
+-		expect(filter(path.resolve('C/d/yx'))).toBeFalsy();
+-		expect(filter(path.resolve('C') + '/ys')).toBeFalsy();
+-		expect(filter(path.resolve('ys'))).toBeFalsy();
+-		expect(filter('ys')).toBeFalsy();
++		expect(filter(path.resolve('C/d/x'))).to.be.false();
++		expect(filter(path.resolve('C/d/ys'))).to.be.true();
++		expect(filter(path.resolve('C/d/yx'))).to.be.false();
++		expect(filter(path.resolve('C') + '/ys')).to.be.false();
++		expect(filter(path.resolve('ys'))).to.be.false();
++		expect(filter('ys')).to.be.false();
+ 	});
+ 
+ 	it('ignores a falsy resolve value', () => {
+ 		const filter = createFilter(['y*'], ['yx'], { resolve: null });
+-		expect(filter(path.resolve('x'))).toBeFalsy();
+-		expect(filter(path.resolve('ys'))).toBeTruthy();
+-		expect(filter(path.resolve('yx'))).toBeFalsy();
+-		expect(filter(path.resolve('C') + '/ys')).toBeFalsy();
+-		expect(filter(path.resolve('C/d/ys'))).toBeFalsy();
+-		expect(filter('ys')).toBeFalsy();
++		expect(filter(path.resolve('x'))).to.be.false();
++		expect(filter(path.resolve('ys'))).to.be.true();
++		expect(filter(path.resolve('yx'))).to.be.false();
++		expect(filter(path.resolve('C') + '/ys')).to.be.false();
++		expect(filter(path.resolve('C/d/ys'))).to.be.false();
++		expect(filter('ys')).to.be.false();
+ 	});
+ 
+ 	it('allows preventing resolution against process.cwd()', () => {
+ 		const filter = createFilter(['y*'], ['yx'], { resolve: false });
+-		expect(filter('x')).toBeFalsy();
+-		expect(filter('ys')).toBeTruthy();
+-		expect(filter('yx')).toBeFalsy();
+-		expect(filter(path.resolve('C') + '/ys')).toBeFalsy();
+-		expect(filter(path.resolve('C/d/ys'))).toBeFalsy();
+-		expect(filter(path.resolve('ys'))).toBeFalsy();
++		expect(filter('x')).to.be.false();
++		expect(filter('ys')).to.be.true();
++		expect(filter('yx')).to.be.false();
++		expect(filter(path.resolve('C') + '/ys')).to.be.false();
++		expect(filter(path.resolve('C/d/ys'))).to.be.false();
++		expect(filter(path.resolve('ys'))).to.be.false();
+ 	});
+ 
+ 	it('includes names starting with a "."', () => {
+ 		const filter = createFilter(['**/*a']);
+-		expect(filter(path.resolve('.a'))).toBeTruthy();
+-		expect(filter(path.resolve('.x/a'))).toBeTruthy();
++		expect(filter(path.resolve('.a'))).to.be.true();
++		expect(filter(path.resolve('.x/a'))).to.be.true();
+ 	});
+ });
+--- a/legacy/test/dataToEsm.test.ts
++++ b/legacy/test/dataToEsm.test.ts
+@@ -1,8 +1,9 @@
+-import { dataToEsm } from '..';
++const { dataToEsm } = require('rollup-pluginutils');
++const { expect } = require('chai');
+ 
+ describe('dataToEsm', function() {
+ 	it('outputs treeshakeable data', function() {
+-		expect(dataToEsm({ some: 'data', another: 'data' })).toEqual(
++		expect(dataToEsm({ some: 'data', another: 'data' })).to.deep.equal(
+ 			'export var some = "data";\nexport var another = "data";\nexport default {\n\tsome: some,\n\tanother: another\n};\n'
+ 		);
+ 	});
+@@ -10,12 +11,12 @@
+ 	it('handles illegal identifiers, object shorthand, preferConst', function() {
+ 		expect(
+ 			dataToEsm({ '1': 'data', default: 'data' }, { objectShorthand: true, preferConst: true })
+-		).toEqual('export default {\n\t"1": "data",\n\t"default": "data"\n};\n');
++		).to.deep.equal('export default {\n\t"1": "data",\n\t"default": "data"\n};\n');
+ 	});
+ 
+ 	it('supports non-JSON data', function() {
+ 		const date = new Date();
+-		expect(dataToEsm({ inf: -Infinity, date, number: NaN, regexp: /.*/ })).toEqual(
++		expect(dataToEsm({ inf: -Infinity, date, number: NaN, regexp: /.*/ })).to.deep.equal(
+ 			'export var inf = -Infinity;\nexport var date = new Date(' +
+ 				date.getTime() +
+ 				');\nexport var number = NaN;\nexport var regexp = /.*/;\nexport default {\n\tinf: inf,\n\tdate: date,\n\tnumber: number,\n\tregexp: regexp\n};\n'
+@@ -25,63 +26,63 @@
+ 	it('supports a compact argument', function() {
+ 		expect(
+ 			dataToEsm({ some: 'data', another: 'data' }, { compact: true, objectShorthand: true })
+-		).toEqual('export var some="data";export var another="data";export default{some,another};');
++		).to.deep.equal('export var some="data";export var another="data";export default{some,another};');
+ 		expect(
+ 			dataToEsm(
+ 				{ some: { deep: { object: 'definition', here: 'here' } }, else: { deep: { object: 'definition', here: 'here' } } },
+ 				{ compact: true, objectShorthand: false }
+ 			)
+-		).toEqual(
++		).to.deep.equal(
+ 			'export var some={deep:{object:"definition",here:"here"}};export default{some:some,"else":{deep:{object:"definition",here:"here"}}};'
+ 		);
+ 	});
+ 
+ 	it('supports nested objects', function() {
+ 		const obj = { a: { b: 'c', d: ['e', 'f'] } };
+-		expect(dataToEsm({ obj })).toEqual(
++		expect(dataToEsm({ obj })).to.deep.equal(
+ 			'export var obj = {\n\ta: {\n\t\tb: "c",\n\t\td: [\n\t\t\t"e",\n\t\t\t"f"\n\t\t]\n\t}\n};\nexport default {\n\tobj: obj\n};\n'
+ 		);
+ 	});
+ 
+ 	it('supports nested arrays', function() {
+ 		const arr = ['a', 'b'];
+-		expect(dataToEsm({ arr })).toEqual(
++		expect(dataToEsm({ arr })).to.deep.equal(
+ 			'export var arr = [\n\t"a",\n\t"b"\n];\nexport default {\n\tarr: arr\n};\n'
+ 		);
+ 	});
+ 
+ 	it('serializes null', function() {
+-		expect(dataToEsm({ null: null })).toEqual('export default {\n\t"null": null\n};\n');
++		expect(dataToEsm({ null: null })).to.deep.equal('export default {\n\t"null": null\n};\n');
+ 	});
+ 
+ 	it('supports default only', function() {
+ 		const arr = ['a', 'b'];
+-		expect(dataToEsm({ arr }, { namedExports: false })).toEqual(
++		expect(dataToEsm({ arr }, { namedExports: false })).to.deep.equal(
+ 			'export default {\n\tarr: [\n\t\t"a",\n\t\t"b"\n\t]\n};'
+ 		);
+ 	});
+ 
+ 	it('exports default only for arrays', function() {
+ 		const arr = ['a', 'b'];
+-		expect(dataToEsm(arr)).toEqual('export default [\n\t"a",\n\t"b"\n];');
++		expect(dataToEsm(arr)).to.deep.equal('export default [\n\t"a",\n\t"b"\n];');
+ 	});
+ 
+ 	it('exports default only for null', function() {
+-		expect(dataToEsm(null, { compact: true })).toEqual('export default null;');
++		expect(dataToEsm(null, { compact: true })).to.deep.equal('export default null;');
+ 	});
+ 
+ 	it('exports default only for primitive values', function() {
+-		expect(dataToEsm('some string')).toEqual('export default "some string";');
++		expect(dataToEsm('some string')).to.deep.equal('export default "some string";');
+ 	});
+ 
+ 	it('supports empty keys', function() {
+-		expect(dataToEsm({ a: 'x', '': 'y' })).toEqual(
++		expect(dataToEsm({ a: 'x', '': 'y' })).to.deep.equal(
+ 			'export var a = "x";\nexport default {\n\ta: a,\n' + '\t"": "y"\n};\n'
+ 		);
+ 	});
+ 
+ 	it('avoid U+2029 U+2029 -0 be ignored by JSON.stringify, and avoid it return non-string (undefined) before replacing', function() {
+-		expect(dataToEsm([-0, '\u2028\u2029', undefined, function() {}], { compact: true })).toEqual(
++		expect(dataToEsm([-0, '\u2028\u2029', undefined, function() {}], { compact: true })).to.deep.equal(
+ 			'export default[-0,"\\u2028\\u2029",undefined,undefined];'
+ 		);
+ 	});
+--- a/legacy/test/extractAssignedNames.test.ts
++++ b/legacy/test/extractAssignedNames.test.ts
+@@ -1,4 +1,5 @@
+-import { extractAssignedNames } from '..';
++const { extractAssignedNames } = require('rollup-pluginutils');
++const { expect } = require('chai');
+ 
+ describe('extractAssignedNames', function() {
+ 	it('extracts an Identifier', function() {
+@@ -9,7 +10,7 @@
+ 			name: 'x'
+ 		};
+ 
+-		expect(extractAssignedNames(node)).toEqual(['x']);
++		expect(extractAssignedNames(node)).to.deep.equal(['x']);
+ 	});
+ 
+ 	it('extracts from array patterns', function() {
+@@ -69,7 +70,7 @@
+ 			]
+ 		};
+ 
+-		expect(extractAssignedNames(node)).toEqual(['a', 'b', 'd', 'e']);
++		expect(extractAssignedNames(node)).to.deep.equal(['a', 'b', 'd', 'e']);
+ 	});
+ 
+ 	it('extracts from object patterns', function() {
+@@ -210,7 +211,7 @@
+ 			]
+ 		};
+ 
+-		expect(extractAssignedNames(node)).toEqual(['a', 'c', 'f', 'h', 'i']);
++		expect(extractAssignedNames(node)).to.deep.equal(['a', 'c', 'f', 'h', 'i']);
+ 	});
+ 
+ 	it('ignores updated member expressions', function() {
+@@ -258,6 +259,6 @@
+ 			]
+ 		};
+ 
+-		expect(extractAssignedNames(node)).toEqual([]);
++		expect(extractAssignedNames(node)).to.deep.equal([]);
+ 	});
+ });
+--- a/legacy/test/makeLegalIdentifier.test.ts
++++ b/legacy/test/makeLegalIdentifier.test.ts
+@@ -1,19 +1,20 @@
+-import { makeLegalIdentifier } from '..';
++const { makeLegalIdentifier } = require('rollup-pluginutils');
++const { expect } = require('chai');
+ 
+ describe('makeLegalIdentifier', function() {
+ 	it('camel-cases names', function() {
+-		expect(makeLegalIdentifier('foo-bar')).toEqual('fooBar');
++		expect(makeLegalIdentifier('foo-bar')).to.deep.equal('fooBar');
+ 	});
+ 
+ 	it('replaces keywords', function() {
+-		expect(makeLegalIdentifier('typeof')).toEqual('_typeof');
++		expect(makeLegalIdentifier('typeof')).to.deep.equal('_typeof');
+ 	});
+ 
+ 	it('blacklists arguments (https://github.com/rollup/rollup/issues/871)', function() {
+-		expect(makeLegalIdentifier('arguments')).toEqual('_arguments');
++		expect(makeLegalIdentifier('arguments')).to.deep.equal('_arguments');
+ 	});
+ 
+ 	it('empty', function() {
+-		expect(makeLegalIdentifier('')).toEqual('_');
++		expect(makeLegalIdentifier('')).to.deep.equal('_');
+ 	});
+ });

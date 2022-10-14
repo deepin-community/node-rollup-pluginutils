@@ -1,0 +1,3 @@
+fake-tsc-transpile.diff
+switch-test-from-ava-to-tape.diff
+drop-legacy-plugins.patch
