@@ -1,16 +1,16 @@
 Description: switch test from ava+tsc to tape (common JS)
-Author: Xavier Guimard <yadd@debian.org>
+Author: Yadd <yadd@debian.org>
 Forwarded: not-needed
-Last-Update: 2020-09-17
+Last-Update: 2022-10-10
 
---- node-rollup-pluginutils.orig/packages/pluginutils/test/addExtension.ts
-+++ node-rollup-pluginutils/packages/pluginutils/test/addExtension.ts
+--- a/packages/pluginutils/test/addExtension.ts
++++ b/packages/pluginutils/test/addExtension.ts
 @@ -1,26 +1,31 @@
 -import test from 'ava';
-+const test = require('tape');
++import test from 'tape';
  
 -import { addExtension } from '../';
-+const addExtension = require('@rollup/pluginutils').addExtension;
++import { addExtension } from '@rollup/pluginutils';
  
  test('adds .js to an ID without an extension', (t) => {
    t.is(addExtension('foo'), 'foo.js');
@@ -39,20 +39,17 @@ Last-Update: 2020-09-17
    t.is(addExtension('foo.lol', '.wut'), 'foo.lol');
 +  t.end();
  });
---- node-rollup-pluginutils.orig/packages/pluginutils/test/attachScopes.ts
-+++ node-rollup-pluginutils/packages/pluginutils/test/attachScopes.ts
-@@ -1,25 +1,27 @@
- // eslint-disable-next-line import/no-unresolved
--import * as estree from 'estree';
-+//const estree = require('estree');
+--- a/packages/pluginutils/test/attachScopes.ts
++++ b/packages/pluginutils/test/attachScopes.ts
+@@ -1,24 +1,26 @@
+ import * as estree from 'estree';
  
 -import test from 'ava';
--import { parse } from 'acorn';
-+const test = require('tape');
-+const { parse } = require('acorn');
++import test from 'tape';
+ import { parse } from 'acorn';
  
 -import { attachScopes, AttachedScope } from '../';
-+const { attachScopes, AttachedScope } = require('@rollup/pluginutils');
++import { attachScopes, AttachedScope } from '@rollup/pluginutils';
  
  test('attaches a scope to the top level', (t) => {
    const ast = parse('var foo;', { ecmaVersion: 2020, sourceType: 'module' });
@@ -77,7 +74,7 @@ Last-Update: 2020-09-17
  });
  
  test('adds named declarators from a deconstructed declaration', (t) => {
-@@ -29,8 +31,9 @@
+@@ -28,8 +30,9 @@
    });
  
    const scope = attachScopes(ast, 'scope');
@@ -89,7 +86,7 @@ Last-Update: 2020-09-17
  });
  
  test('adds rest elements from a deconstructed object declaration', (t) => {
-@@ -40,10 +43,11 @@
+@@ -39,10 +42,11 @@
    });
  
    const scope = attachScopes(ast, 'scope');
@@ -105,7 +102,7 @@ Last-Update: 2020-09-17
  });
  
  test('adds nested declarators from a deconstructed declaration', (t) => {
-@@ -53,27 +57,31 @@
+@@ -52,25 +56,28 @@
    });
  
    const scope = attachScopes(ast, 'scope');
@@ -138,12 +135,9 @@ Last-Update: 2020-09-17
 +  t.end();
  });
  
-+/*
  test('supports ForStatement', (t) => {
-   const ast = (parse(
-     `
-@@ -86,17 +94,18 @@
-   ) as unknown) as estree.Program;
+@@ -85,17 +92,18 @@
+   ) as unknown as estree.Program;
  
    const scope = attachScopes(ast, 'scope');
 -  t.falsy(scope.contains('a'));
@@ -167,8 +161,8 @@ Last-Update: 2020-09-17
  });
  
  test('supports ForOfStatement', (t) => {
-@@ -111,16 +120,17 @@
-   ) as unknown) as estree.Program;
+@@ -110,16 +118,17 @@
+   ) as unknown as estree.Program;
  
    const scope = attachScopes(ast, 'scope');
 -  t.falsy(scope.contains('a'));
@@ -191,8 +185,8 @@ Last-Update: 2020-09-17
  });
  
  test('supports ForInStatement', (t) => {
-@@ -135,14 +145,16 @@
-   ) as unknown) as estree.Program;
+@@ -134,14 +143,15 @@
+   ) as unknown as estree.Program;
  
    const scope = attachScopes(ast, 'scope');
 -  t.falsy(scope.contains('a'));
@@ -213,27 +207,23 @@ Last-Update: 2020-09-17
 +  t.ok(forBody.scope.contains('b'));
 +  t.end();
  });
-+*/
---- node-rollup-pluginutils.orig/packages/pluginutils/test/createFilter.ts
-+++ node-rollup-pluginutils/packages/pluginutils/test/createFilter.ts
-@@ -1,141 +1,177 @@
--import { resolve as rawResolve } from 'path';
-+const rawResolve = require('path').resolve;
+--- a/packages/pluginutils/test/createFilter.ts
++++ b/packages/pluginutils/test/createFilter.ts
+@@ -1,156 +1,183 @@
+ import { resolve as rawResolve } from 'path';
  
 -import test from 'ava';
-+const test = require('tape');
++import test from 'tape';
  
 -import { createFilter, normalizePath } from '../';
-+const { createFilter, normalizePath } = require('@rollup/pluginutils');
++import { createFilter, normalizePath } from '@rollup/pluginutils';
  
--const resolve = (...parts: string[]) => normalizePath(rawResolve(...parts));
-+const resolve = (parts) => normalizePath(rawResolve(parts));
+ const resolve = (...parts: string[]) => normalizePath(rawResolve(...parts));
  
 -test.beforeEach(() => process.chdir(__dirname));
-+const beforeEach = () => process.chdir(__dirname);
- 
+-
  test('includes by default', (t) => {
-+  beforeEach();
++  process.chdir(__dirname);
    const filter = createFilter();
 -  t.truthy(filter(resolve('x')));
 +  t.ok(filter(resolve('x')));
@@ -241,7 +231,7 @@ Last-Update: 2020-09-17
  });
  
  test('excludes IDs that are not included, if include.length > 0', (t) => {
-+  beforeEach();
++  process.chdir(__dirname);
    const filter = createFilter(['y']);
 -  t.falsy(filter(resolve('x')));
 -  t.truthy(filter(resolve('y')));
@@ -251,7 +241,7 @@ Last-Update: 2020-09-17
  });
  
  test('excludes IDs explicitly', (t) => {
-+  beforeEach();
++  process.chdir(__dirname);
    const filter = createFilter(null, ['y']);
 -  t.truthy(filter(resolve('x')));
 -  t.falsy(filter(resolve('y')));
@@ -261,7 +251,7 @@ Last-Update: 2020-09-17
  });
  
  test('handles non-array arguments', (t) => {
-+  beforeEach();
++  process.chdir(__dirname);
    const filter = createFilter('foo/*', 'foo/baz');
 -  t.truthy(filter(resolve('foo/bar')));
 -  t.falsy(filter(resolve('foo/baz')));
@@ -271,7 +261,7 @@ Last-Update: 2020-09-17
  });
  
  test('negation patterns', (t) => {
-+  beforeEach();
++  process.chdir(__dirname);
    const filter = createFilter(['a/!(b)/c']);
 -  t.truthy(filter(resolve('a/d/c')));
 -  t.falsy(filter(resolve('a/b/c')));
@@ -281,7 +271,7 @@ Last-Update: 2020-09-17
  });
  
  test('excludes non-string IDs', (t) => {
-+  beforeEach();
++  process.chdir(__dirname);
    const filter = createFilter(null, null);
 -  t.falsy(filter({}));
 +  t.notOk(filter({}));
@@ -289,7 +279,7 @@ Last-Update: 2020-09-17
  });
  
  test('excludes strings beginning with NUL', (t) => {
-+  beforeEach();
++  process.chdir(__dirname);
    const filter = createFilter(null, null);
 -  t.falsy(filter('\0someid'));
 +  t.notOk(filter('\0someid'));
@@ -297,7 +287,7 @@ Last-Update: 2020-09-17
  });
  
  test('includes with regexp', (t) => {
-+  beforeEach();
++  process.chdir(__dirname);
    const filter = createFilter(['a/!(b)/c', /\.js$/]);
 -  t.truthy(filter(resolve('a/d/c')));
 -  t.falsy(filter(resolve('a/b/c')));
@@ -313,7 +303,7 @@ Last-Update: 2020-09-17
  });
  
  test('excludes with regexp', (t) => {
-+  beforeEach();
++  process.chdir(__dirname);
    const filter = createFilter(['a/!(b)/c', /\.js$/], /\.js$/);
 -  t.truthy(filter(resolve('a/d/c')));
 -  t.falsy(filter(resolve('a/b/c')));
@@ -329,7 +319,7 @@ Last-Update: 2020-09-17
  });
  
  test('allows setting an absolute base dir', (t) => {
-+  beforeEach();
++  process.chdir(__dirname);
    const baseDir = resolve('C');
    const filter = createFilter(['y*'], ['yx'], { resolve: baseDir });
 -  t.falsy(filter(`${baseDir}/x`));
@@ -348,7 +338,7 @@ Last-Update: 2020-09-17
  });
  
  test('allows setting a relative base dir', (t) => {
-+  beforeEach();
++  process.chdir(__dirname);
    const filter = createFilter(['y*'], ['yx'], { resolve: 'C/d' });
 -  t.falsy(filter(resolve('C/d/x')));
 -  t.truthy(filter(resolve('C/d/ys')));
@@ -367,7 +357,7 @@ Last-Update: 2020-09-17
  
 -test('ignores a falsy resolve value', (t) => {
 +test('ignores a notOk resolve value', (t) => {
-+  beforeEach();
++  process.chdir(__dirname);
    const filter = createFilter(['y*'], ['yx'], { resolve: null });
 -  t.falsy(filter(resolve('x')));
 -  t.truthy(filter(resolve('ys')));
@@ -385,7 +375,7 @@ Last-Update: 2020-09-17
  });
  
  test('allows preventing resolution against process.cwd()', (t) => {
-+  beforeEach();
++  process.chdir(__dirname);
    const filter = createFilter(['y*'], ['yx'], { resolve: false });
 -  t.falsy(filter('x'));
 -  t.truthy(filter('ys'));
@@ -403,31 +393,25 @@ Last-Update: 2020-09-17
  });
  
  test('includes names starting with a "."', (t) => {
-+  beforeEach();
++  process.chdir(__dirname);
    const filter = createFilter(['**/*a']);
 -  t.truthy(filter(resolve('.a')));
 -  t.truthy(filter(resolve('.x/a')));
+-});
+-
+-test.serial('includes names containing parenthesis', (t) => {
+-  process.chdir(resolve(__dirname, 'fixtures/folder-with (parens)'));
+-  const filter = createFilter(['*.ts+(|x)', '**/*.ts+(|x)'], ['*.d.ts', '**/*.d.ts']);
+-  t.truthy(filter(resolve('folder (test)/src/main.tsx')));
+-  t.truthy(filter(resolve('.x/(test)a.ts')));
+-  t.falsy(filter(resolve('.x/(test)a.d.ts')));
 +  t.ok(filter(resolve('.a')));
 +  t.ok(filter(resolve('.x/a')));
 +  t.end();
  });
  
--test.serial('includes names containing parenthesis', (t) => {
-+test('includes names containing parenthesis', (t) => {
-+  beforeEach();
-   process.chdir(resolve(__dirname, 'fixtures/folder-with (parens)'));
-   const filter = createFilter(['*.ts+(|x)', '**/*.ts+(|x)'], ['*.d.ts', '**/*.d.ts']);
--  t.truthy(filter(resolve('folder (test)/src/main.tsx')));
--  t.truthy(filter(resolve('.x/(test)a.ts')));
--  t.falsy(filter(resolve('.x/(test)a.d.ts')));
-+  t.ok(filter(resolve('folder (test)/src/main.tsx')));
-+  t.ok(filter(resolve('.x/(test)a.ts')));
-+  t.notOk(filter(resolve('.x/(test)a.d.ts')));
-+  t.end();
- });
- 
  test('handles relative paths', (t) => {
-+  beforeEach();
++  process.chdir(__dirname);
    const filter = createFilter(['./index.js', './foo/../a.js']);
 -  t.truthy(filter(resolve('index.js')));
 -  t.truthy(filter(resolve('a.js')));
@@ -439,19 +423,59 @@ Last-Update: 2020-09-17
  });
  
  test('does not add current working directory when pattern is an absolute path', (t) => {
-+  beforeEach();
++  process.chdir(__dirname);
    const filter = createFilter([resolve('..', '..', '*')]);
 -  t.truthy(filter(resolve('..', '..', 'a')));
 -  t.truthy(filter(resolve('..', '..', 'b')));
 -  t.falsy(filter(resolve('..', 'c')));
 +  t.ok(filter(resolve('..', '..', 'a')));
 +  t.ok(filter(resolve('..', '..', 'b')));
-+  //t.notOk(filter(resolve('..', 'c')));
++  t.notOk(filter(resolve('..', 'c')));
++  t.end();
+ });
+ 
+ test('normalizes path when pattern is an absolute path', (t) => {
++  process.chdir(__dirname);
+   const filterPosix = createFilter([`${resolve('.')}/*`]);
+   const filterWin = createFilter([`${resolve('.')}\\*`]);
+ 
+-  t.truthy(filterPosix(resolve('a')));
+-  t.truthy(filterWin(resolve('a')));
++  t.ok(filterPosix(resolve('a')));
++  t.ok(filterWin(resolve('a')));
++  t.end();
+ });
+ 
+ test('normalizes path when pattern starts with *', (t) => {
++  process.chdir(__dirname);
+   const filterPosix = createFilter([`**/a`]);
+   const filterWin = createFilter([`**\\a`]);
+ 
+-  t.truthy(filterPosix(resolve('a')));
+-  t.truthy(filterWin(resolve('a')));
++  t.ok(filterPosix(resolve('a')));
++  t.ok(filterWin(resolve('a')));
++  t.end();
+ });
+ 
+ test('normalizes path when pattern has resolution base', (t) => {
++  process.chdir(__dirname);
+   const filterPosix = createFilter([`test/*`], [], {
+     resolve: __dirname
+   });
+@@ -158,12 +185,15 @@
+     resolve: __dirname
+   });
+ 
+-  t.truthy(filterPosix(resolve('test/a')));
+-  t.truthy(filterWin(resolve('test/a')));
++  t.ok(filterPosix(resolve('test/a')));
++  t.ok(filterWin(resolve('test/a')));
 +  t.end();
  });
  
  test('does not add current working directory when pattern starts with a glob', (t) => {
-+  beforeEach();
++  process.chdir(__dirname);
    const filter = createFilter(['**/*']);
 -  t.truthy(filter(resolve('a')));
 -  t.truthy(filter(resolve('..', '..', 'a')));
@@ -459,17 +483,33 @@ Last-Update: 2020-09-17
 +  t.ok(filter(resolve('..', '..', 'a')));
 +  t.end();
  });
---- node-rollup-pluginutils.orig/packages/pluginutils/test/dataToEsm.ts
-+++ node-rollup-pluginutils/packages/pluginutils/test/dataToEsm.ts
+--- a/packages/pluginutils/test/dataToEsm.ts
++++ b/packages/pluginutils/test/dataToEsm.ts
 @@ -1,12 +1,13 @@
 -import test from 'ava';
-+const test = require('tape');
++import test from 'tape';
  
 -import { dataToEsm } from '../';
-+const { dataToEsm } = require('@rollup/pluginutils');
++import { dataToEsm } from '@rollup/pluginutils';
+ 
+ test('support bigint', (t) => {
+   t.is(
+     dataToEsm({ positive: BigInt('0'), negative: BigInt('-1') }),
+     'export var positive = 0n;\nexport var negative = -1n;\nexport default {\n\tpositive: positive,\n\tnegative: negative\n};\n'
+   );
++  t.end();
+ });
+ 
+ test('support symbol', (t) => {
+@@ -14,6 +15,7 @@
+     dataToEsm({ normal: Symbol.for('key'), empty: Symbol.for('') }),
+     'export var normal = Symbol.for("key");\nexport var empty = Symbol.for("");\nexport default {\n\tnormal: normal,\n\tempty: empty\n};\n'
+   );
++  t.end();
+ });
  
  test('outputs treeshakeable data', (t) => {
-   t.is(
+@@ -21,6 +23,7 @@
      dataToEsm({ some: 'data', another: 'data' }),
      'export var some = "data";\nexport var another = "data";\nexport default {\n\tsome: some,\n\tanother: another\n};\n'
    );
@@ -477,7 +517,7 @@ Last-Update: 2020-09-17
  });
  
  test('handles illegal identifiers, object shorthand, preferConst', (t) => {
-@@ -14,6 +15,7 @@
+@@ -28,6 +31,7 @@
      dataToEsm({ '1': 'data', default: 'data' }, { objectShorthand: true, preferConst: true }),
      'export default {\n\t"1": "data",\n\t"default": "data"\n};\n'
    );
@@ -485,7 +525,7 @@ Last-Update: 2020-09-17
  });
  
  test('supports non-JSON data', (t) => {
-@@ -22,6 +24,7 @@
+@@ -36,6 +40,7 @@
      dataToEsm({ inf: -Infinity, date, number: NaN, regexp: /.*/ }),
      `export var inf = -Infinity;\nexport var date = new Date(${date.getTime()});\nexport var number = NaN;\nexport var regexp = /.*/;\nexport default {\n\tinf: inf,\n\tdate: date,\n\tnumber: number,\n\tregexp: regexp\n};\n`
    );
@@ -493,7 +533,7 @@ Last-Update: 2020-09-17
  });
  
  test('supports a compact argument', (t) => {
-@@ -39,6 +42,7 @@
+@@ -53,6 +58,7 @@
      ),
      'export var some={deep:{object:"definition",here:"here"}};export default{some:some,"else":{deep:{object:"definition",here:"here"}}};'
    );
@@ -501,7 +541,7 @@ Last-Update: 2020-09-17
  });
  
  test('supports nested objects', (t) => {
-@@ -47,6 +51,7 @@
+@@ -61,6 +67,7 @@
      dataToEsm({ obj }),
      'export var obj = {\n\ta: {\n\t\tb: "c",\n\t\td: [\n\t\t\t"e",\n\t\t\t"f"\n\t\t]\n\t}\n};\nexport default {\n\tobj: obj\n};\n'
    );
@@ -509,7 +549,7 @@ Last-Update: 2020-09-17
  });
  
  test('supports nested arrays', (t) => {
-@@ -55,10 +60,12 @@
+@@ -69,10 +76,12 @@
      dataToEsm({ arr }),
      'export var arr = [\n\t"a",\n\t"b"\n];\nexport default {\n\tarr: arr\n};\n'
    );
@@ -522,7 +562,7 @@ Last-Update: 2020-09-17
  });
  
  test('supports default only', (t) => {
-@@ -67,19 +74,23 @@
+@@ -81,19 +90,23 @@
      dataToEsm({ arr }, { namedExports: false }),
      'export default {\n\tarr: [\n\t\t"a",\n\t\t"b"\n\t]\n};'
    );
@@ -546,7 +586,7 @@ Last-Update: 2020-09-17
  });
  
  test('supports empty keys', (t) => {
-@@ -87,6 +98,7 @@
+@@ -101,6 +114,7 @@
      dataToEsm({ a: 'x', '': 'y' }),
      'export var a = "x";\nexport default {\n\ta: a,\n\t"": "y"\n};\n'
    );
@@ -554,20 +594,20 @@ Last-Update: 2020-09-17
  });
  
  test('avoid U+2029 U+2029 -0 be ignored by JSON.stringify, and avoid it return non-string (undefined) before replacing', (t) => {
-@@ -95,4 +107,5 @@
+@@ -109,4 +123,5 @@
      dataToEsm([-0, '\u2028\u2029', undefined, function () {}], { compact: true }),
      'export default[-0,"\\u2028\\u2029",undefined,undefined];'
    );
 +  t.end();
  });
---- node-rollup-pluginutils.orig/packages/pluginutils/test/extractAssignedNames.ts
-+++ node-rollup-pluginutils/packages/pluginutils/test/extractAssignedNames.ts
+--- a/packages/pluginutils/test/extractAssignedNames.ts
++++ b/packages/pluginutils/test/extractAssignedNames.ts
 @@ -1,6 +1,6 @@
 -import test from 'ava';
-+const test = require('tape');
++import test from 'tape';
  
 -import { extractAssignedNames } from '../';
-+const { extractAssignedNames } = require('@rollup/pluginutils');
++import { extractAssignedNames } from '@rollup/pluginutils';
  
  test('extracts an Identifier', (t) => {
    const node = {
@@ -601,14 +641,14 @@ Last-Update: 2020-09-17
    t.deepEqual(extractAssignedNames(node), []);
 +  t.end();
  });
---- node-rollup-pluginutils.orig/packages/pluginutils/test/makeLegalIdentifier.ts
-+++ node-rollup-pluginutils/packages/pluginutils/test/makeLegalIdentifier.ts
+--- a/packages/pluginutils/test/makeLegalIdentifier.ts
++++ b/packages/pluginutils/test/makeLegalIdentifier.ts
 @@ -1,23 +1,28 @@
 -import test from 'ava';
-+const test = require('tape');
++import test from 'tape';
  
 -import { makeLegalIdentifier } from '../';
-+const { makeLegalIdentifier } = require('@rollup/pluginutils');
++import { makeLegalIdentifier } from '@rollup/pluginutils';
  
  test('camel-cases names', (t) => {
    t.is(makeLegalIdentifier('foo-bar'), 'fooBar');
@@ -634,14 +674,14 @@ Last-Update: 2020-09-17
    t.is(makeLegalIdentifier('parse-int'), '_parseInt');
 +  t.end();
  });
---- node-rollup-pluginutils.orig/packages/pluginutils/test/normalizePath.ts
-+++ node-rollup-pluginutils/packages/pluginutils/test/normalizePath.ts
+--- a/packages/pluginutils/test/normalizePath.ts
++++ b/packages/pluginutils/test/normalizePath.ts
 @@ -1,17 +1,20 @@
 -import test from 'ava';
-+const test = require('tape');
++import test from 'tape';
  
 -import { normalizePath } from '../';
-+const { normalizePath } = require('@rollup/pluginutils');
++import { normalizePath } from '@rollup/pluginutils';
  
  test('replaces \\ with /', (t) => {
    t.is(normalizePath('foo\\bar'), 'foo/bar');

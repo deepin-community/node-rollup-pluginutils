@@ -1,0 +1,6 @@
+cd packages/pluginutils
+if test "$AUTOPKGTEST_TMP" != ""; then
+	pkgjs-ln @rollup/pluginutils
+	ln -s /usr/share/nodejs/@rollup/pluginutils/dist
+fi
+tape -r ts-node/register test/*.ts
