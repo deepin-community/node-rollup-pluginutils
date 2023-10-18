@@ -1,3 +1,4 @@
 fake-tsc-transpile.diff
-switch-test-from-ava-to-tape.diff
 drop-legacy-plugins.patch
+switch-test-from-ava-to-tape.diff
+fix-for-rollup-3.patch

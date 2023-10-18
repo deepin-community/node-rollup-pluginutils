@@ -13,3 +13,6 @@ override_dh_auto_build:
 		echo "build failed, trying with legacy rollup plugins"; \
 		rollup -c ../../debian/rollup-legacy.config.js; \
 	fi
+
+override_dh_installchangelogs:
+	dh_installchangelogs packages/pluginutils/CHANGELOG.md

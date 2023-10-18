@@ -6,8 +6,10 @@ Testsuite: autopkgtest-pkg-nodejs
 Priority: optional
 Build-Depends:
  debhelper-compat (= 13)
+ , dh-sequence-nodejs (>= 0.15.6~)
  , chai <!nocheck>
- , mocha (>= 4) <!nocheck>
+ , mocha <!nocheck>
+ , node-acorn <!nocheck>
  , node-estree-walker <!nocheck>
  , node-micromatch (>= 4.0~) <!nocheck>
  , node-tape <!nocheck>
@@ -16,10 +18,9 @@ Build-Depends:
  , node-rollup-plugin-typescript
  , node-typescript (>= 3.7~)
  , node-types-estree
- , nodejs (>= 10~)
- , dh-sequence-nodejs
  , rollup (>= 1)
-Standards-Version: 4.6.0
+ , ts-node <!nocheck>
+Standards-Version: 4.6.1
 Vcs-Browser: https://salsa.debian.org/js-team/node-rollup-pluginutils
 Vcs-Git: https://salsa.debian.org/js-team/node-rollup-pluginutils.git
 Homepage: https://github.com/rollup/plugins

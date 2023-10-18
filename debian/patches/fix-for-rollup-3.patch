@@ -1,0 +1,23 @@
+Description: fix for rollup 3
+Author: Yadd <yadd@debian.org>
+Bug-Debian: https://bugs.debian.org/1022658
+Forwarded: not-needed
+Last-Update: 2022-10-27
+
+--- a/legacy/rollup.config.js
++++ b/legacy/rollup.config.js
+@@ -1,9 +1,9 @@
+-import pkg from './package.json';
+-import typescript from 'rollup-plugin-typescript';
+-import resolve from '@rollup/plugin-node-resolve';
+-import commonjs from '@rollup/plugin-commonjs';
++const pkg = require('./package.json');
++const typescript = require('rollup-plugin-typescript');
++const resolve = require('@rollup/plugin-node-resolve').nodeResolve;
++const commonjs = require('@rollup/plugin-commonjs');
+ 
+-export default {
++module.exports = {
+ 	input: 'src/index.ts',
+ 	plugins: [
+ 		resolve(),

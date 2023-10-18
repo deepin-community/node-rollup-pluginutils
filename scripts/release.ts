@@ -17,7 +17,6 @@ const parserOptions = {
 const reBreaking = new RegExp(`(${parserOptions.noteKeywords.join(')|(')})`);
 const dryRun = process.argv.includes('--dry');
 const noPublish = process.argv.includes('--no-publish');
-const noPush = process.argv.includes('--no-push');
 const noTag = process.argv.includes('--no-tag');
 
 type Commit = parser.Commit<string | number | symbol>;
@@ -53,7 +52,7 @@ const commitChanges = async (cwd: string, shortName: string, version: string) =>
   await execa('git', params);
 };
 
-const getCommits = async (shortName: string, stripScope: string[]) => {
+const getCommits = async (shortName: string) => {
   log(chalk`{blue Gathering Commits}`);
 
   let params = ['tag', '--list', `${shortName}-v*`, '--sort', '-v:refname'];
@@ -63,8 +62,7 @@ const getCommits = async (shortName: string, stripScope: string[]) => {
   log(chalk`{blue Last Release Tag}: ${latestTag || '<none>'}`);
 
   params = ['--no-pager', 'log', `${latestTag}..HEAD`, '--format=%B%n-hash-%n%H🐒💨🙊'];
-  const scope = stripScope.reduce((prev, strip) => prev.replace(strip, ''), shortName);
-  const rePlugin = new RegExp(`^[\\w\\!]+\\(([\\w,]+)?${scope}([\\w,]+)?\\)`, 'i');
+  const rePlugin = new RegExp(`^[\\w\\!]+\\(([\\w,-]+)?${shortName}([\\w,-]+)?\\)`, 'i');
   let { stdout } = await execa('git', params);
 
   if (!stdout) {
@@ -83,7 +81,9 @@ const getCommits = async (shortName: string, stripScope: string[]) => {
       const node = parser.sync(commit);
       const body = (node.body || node.footer) as string;
 
-      ((node as unknown) as BreakingCommit).breaking =
+      if (!node.type) node.type = parser.sync(node.header?.replace(/\(.+\)!?:/, ':') || '').type;
+
+      (node as unknown as BreakingCommit).breaking =
         reBreaking.test(body) || /!:/.test(node.header as string);
 
       return node;
@@ -121,34 +121,6 @@ const publish = async (cwd: string) => {
   await execa('npm', ['publish', '--no-git-checks'], { cwd, stdio: 'inherit' });
 };
 
-const pull = async (main: string) => {
-  log(chalk`{blue Pulling Latest Changes from Remote and Rebasing}`);
-
-  await execa('git', ['checkout', '.npmrc']);
-  await execa('git', ['pull', 'origin', main, '--no-edit']);
-  const { stdout } = await execa('git', ['status']);
-  console.log({ stdout });
-  await execa('git', ['rebase']);
-};
-
-const push = async () => {
-  if (dryRun || noPush) {
-    log(chalk`{yellow Skipping Git Push}`);
-    return;
-  }
-
-  const { stdout: branches } = await execa('git', ['branch']);
-  const main = branches.includes('main') ? 'main' : 'master';
-
-  await pull(main);
-
-  const params = ['push', 'origin', `HEAD:${main}`];
-
-  log(chalk`{blue Pushing Release and Tags}`);
-  await execa('git', params);
-  await execa('git', [...params, '--tags']);
-};
-
 const tag = async (cwd: string, shortName: string, version: string) => {
   if (dryRun || noTag) {
     log(chalk`{yellow Skipping Git Tag}`);
@@ -171,9 +143,17 @@ const updateChangelog = (commits: Commit[], cwd: string, shortName: string, vers
   const oldNotes = logFile.startsWith(title) ? logFile.slice(title.length).trim() : logFile;
   const notes: Notes = { breaking: [], features: [], fixes: [], updates: [] };
 
-  for (const { breaking, hash, header, type } of commits) {
-    const ref = /\(#\d+\)/.test(header as string) ? '' : ` (${hash?.substring(0, 7)})`;
-    const message = header?.trim().replace(/\(.+\)/, '') + ref;
+  for (const commit of commits) {
+    const { breaking, hash, header, type } = commit;
+    const ref = /\(#\d+\)/.test(header as string)
+      ? ''
+      : ` ([${hash?.substring(0, 7)}](https://github.com/rollup/plugins/commit/${hash}))`;
+    const message =
+      header
+        ?.trim()
+        .replace(/\(.+\)!?:/, ':')
+        .replace(/\((#(\d+))\)/, '[$1](https://github.com/rollup/plugins/pull/$2)') + ref;
+
     if (breaking) {
       notes.breaking.push(message);
     } else if (type === 'fix') {
@@ -202,7 +182,8 @@ const updateChangelog = (commits: Commit[], cwd: string, shortName: string, vers
   }
 
   log(chalk`{blue Updating} CHANGELOG.md`);
-  const content = [title, newLog, oldNotes].filter(Boolean).join('\n\n');
+  let content = [title, newLog, oldNotes].filter(Boolean).join('\n\n');
+  if (!content.endsWith('\n')) content += '\n';
   writeFileSync(logPath, content, 'utf-8');
 };
 
@@ -222,7 +203,6 @@ const updatePackage = async (cwd: string, pkg: RepoPackage, version: string) => 
   try {
     const argv = yargs(process.argv.slice(2));
     const packagePath = argv.packagePath || 'packages';
-    const stripScope = argv.stripScope?.split(',') || [];
     const packageName = argv.pkg;
     const shortName = packageName.replace(/^@.+\//, '').replace('plugin-', '');
     const cwd = join(process.cwd(), `/${packagePath}/`, shortName);
@@ -239,11 +219,11 @@ const updatePackage = async (cwd: string, pkg: RepoPackage, version: string) => 
 
     log(chalk`{cyan Releasing \`${packageName}\`} from {grey packages/${shortName}}\n`);
 
-    const commits = await getCommits(shortName, stripScope);
+    const commits = await getCommits(shortName);
 
     if (!commits.length) {
       log(chalk`\n{red No Commits Found}. Did you mean to publish ${packageName}?`);
-      return;
+      process.exit(1);
     }
 
     log(chalk`{blue Found} {bold ${commits.length}} Commits\n`);
@@ -257,7 +237,6 @@ const updatePackage = async (cwd: string, pkg: RepoPackage, version: string) => 
     await commitChanges(cwd, shortName, newVersion);
     await publish(cwd);
     await tag(cwd, shortName, newVersion);
-    await push();
   } catch (e) {
     log(e);
     process.exit(1);

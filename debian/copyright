@@ -2,6 +2,8 @@ Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 Upstream-Name: @rollup/pluginutils
 Upstream-Contact: https://github.com/rollup/plugins/issues
 Source: https://github.com/rollup/plugins
+Files-Excluded: packages/*
+Files-Included: packages/pluginutils
 
 Files: *
 Copyright: 2019 RollupJS Plugin Contributors <https://github.com/rollup/plugins/graphs/contributors>

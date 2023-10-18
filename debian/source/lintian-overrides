@@ -1,6 +1,4 @@
 # Test are really enabled in custom debian/tests/control
 pkg-js-autopkgtest-test-is-missing debian/tests/pkg-js/test
-# Unused files
-source-contains-prebuilt-wasm-binary packages/wasm/test/fixtures/complex.wasm
-source-contains-prebuilt-wasm-binary packages/wasm/test/fixtures/imports.wasm
-source-contains-prebuilt-wasm-binary packages/wasm/test/fixtures/sample.wasm
+# Same author
+add-component-copyright legacy *

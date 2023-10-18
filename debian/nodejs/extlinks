@@ -1,0 +1,12 @@
+acorn	test
+estree-walker
+@rollup/plugin-commonjs
+@rollup/plugin-node-resolve
+@rollup/plugin-typescript
+tape	test
+ts-node	test
+@types/estree
+@types/micromatch
+@types/picomatch
+@types/node
+@types/tape	test

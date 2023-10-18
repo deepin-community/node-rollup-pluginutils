@@ -1,3 +1,77 @@
+node-rollup-pluginutils (5.0.2~ds+~2.8.2-1) unstable; urgency=medium
+
+  * Team upload
+  * New upstream version 5.0.2~ds+~2.8.2
+
+ -- Yadd <yadd@debian.org>  Thu, 27 Oct 2022 14:51:18 +0200
+
+node-rollup-pluginutils (5.0.0~ds+~2.8.2-3) unstable; urgency=medium
+
+  * Team upload
+  * Add fix for rollup 3 (Closes: #1022658)
+
+ -- Yadd <yadd@debian.org>  Thu, 27 Oct 2022 14:47:09 +0200
+
+node-rollup-pluginutils (5.0.0~ds+~2.8.2-2) unstable; urgency=medium
+
+  * Team upload
+  * Back to unstable
+
+ -- Yadd <yadd@debian.org>  Tue, 11 Oct 2022 07:35:25 +0200
+
+node-rollup-pluginutils (5.0.0~ds+~2.8.2-1) experimental; urgency=medium
+
+  * Team upload
+  * Update doc
+  * New upstream version 5.0.0~ds+~2.8.2
+  * Update test: use tape -r ts-node/register to simplify patch
+
+ -- Yadd <yadd@debian.org>  Mon, 10 Oct 2022 18:40:07 +0200
+
+node-rollup-pluginutils (4.2.1~ds+~2.8.2-3) unstable; urgency=medium
+
+  * Team upload
+  * Declare compliance with policy 4.6.1
+  * Link estree-walker for build (Closes: #1011871)
+  * Add missing test dependency to node-acorn
+
+ -- Yadd <yadd@debian.org>  Fri, 27 May 2022 07:58:18 +0200
+
+node-rollup-pluginutils (4.2.1~ds+~2.8.2-2) unstable; urgency=medium
+
+  * Team upload
+  * Back to unstable
+
+ -- Yadd <yadd@debian.org>  Thu, 28 Apr 2022 08:50:28 +0200
+
+node-rollup-pluginutils (4.2.1~ds+~2.8.2-1) experimental; urgency=medium
+
+  * Team upload
+
+  [ Debian Janitor ]
+  * Remove constraints unnecessary since buster
+
+  [ Yadd ]
+  * Drop dependency to nodejs
+  * Revert "Drop legacy module"
+  * New upstream version 4.2.1~ds+~2.8.2
+  * Refresh patches
+  * Fix autopkgtest
+  * Update lintian overrides
+
+ -- Yadd <yadd@debian.org>  Tue, 26 Apr 2022 16:19:54 +0200
+
+node-rollup-pluginutils (4.1.2~ds-1) experimental; urgency=medium
+
+  * Team upload
+  * Fix filenamemangle
+  * Add Files-Excluded field to clean source
+  * Drop legacy module
+  * New upstream version 4.1.2~ds
+  * Clean some typescript warnings
+
+ -- Yadd <yadd@debian.org>  Tue, 14 Dec 2021 16:33:10 +0100
+
 node-rollup-pluginutils (4.1.1+~2.8.2-1) unstable; urgency=medium
 
   [ lintian-brush ]
